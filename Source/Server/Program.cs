@@ -1,6 +1,8 @@
 ﻿using Contracts;
 using FastEndpoints;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.IdentityModel.Tokens;
 using Server;
 
 var bld = WebApplication.CreateBuilder();
@@ -25,13 +27,30 @@ bld.WebHost.ConfigureKestrel(
             5001,
             o => o.Protocols = HttpProtocols.Http1AndHttp2);
     });
-bld.AddHandlerServer();
+bld.Services
+   .AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+       o =>
+       {
+           o.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey("a very very long jwt signing secret"u8.ToArray());
+           o.TokenValidationParameters.ValidateIssuerSigningKey = true;
+           o.TokenValidationParameters.ValidateAudience = false;
+           o.TokenValidationParameters.ValidateIssuer = false;
+           o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
+           o.TokenValidationParameters.RoleClaimType = "role";
+           o.MapInboundClaims = false;
+       }).Services
+   .AddAuthorization()
+   .AddHandlerServer();
 
 var app = bld.Build();
+app.UseAuthentication()
+   .UseAuthorization();
 app.MapHandlers(
     h =>
     {
         h.Register<SayHelloCommand, SayHelloHandler>();
+        h.Register<UserLoginCommand, UserLoginHandler, string>();
+        h.Register<RestrictedCommand, RestrictedHandler, string>();
     });
 
 app.Run();
