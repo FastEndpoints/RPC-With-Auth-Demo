@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <NoWarn>CS1591;CS8618</NoWarn>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FastEndpoints.Messaging.Core" Version="5.30.0" />
+        <!-- <ProjectReference Include="..\..\..\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/> -->
+    </ItemGroup>
+
+</Project>
